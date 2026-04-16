@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowDown,
@@ -10,32 +11,31 @@ import {
   Package,
   Truck,
   Link as LinkIcon,
-  Zap,
-  Image as ImageIcon,
   Heart,
-  MessageCircle,
   BarChart2,
 } from 'lucide-react';
 import { chapters } from '../../data/chapters';
 import { journeyStages } from '../../data/journey';
 
-// Icon map — one icon per IP. GlamAR uses an external hosted SVG.
+// Icon map — one icon per IP.
+// Brand products (GlamAR, Boltic, Pixelbin, Kaily) show their actual logos;
+// the rest use lucide glyphs tinted with the chapter accent.
 const ipIconMap = {
-  'vertex-ai':    { Icon: Search,        stroke: 1.8 },
-  'smart-sell':   { Icon: TrendingUp,    stroke: 1.8 },
-  'dynamic-yield':{ Icon: Sparkles,      stroke: 1.8 },
-  glamar:         { img: 'https://cdn.pixelbin.io/v2/dummy-cloudname/original/__glam_ar/logo/glamar-dark.svg' },
-  bazaarvoice:    { Icon: Star,          stroke: 1.8 },
-  commerce:       { Icon: Globe,         stroke: 1.8 },
-  'promo-tagging':{ Icon: Tag,           stroke: 1.8 },
-  oms:            { Icon: Package,       stroke: 1.8 },
-  logistics:      { Icon: Truck,         stroke: 1.8 },
-  konnect:        { Icon: LinkIcon,      stroke: 1.8 },
-  boltic:         { Icon: Zap,           stroke: 1.8 },
-  pixelbin:       { Icon: ImageIcon,     stroke: 1.8 },
-  'fynd-engage':  { Icon: Heart,         stroke: 1.8 },
-  kaily:          { Icon: MessageCircle, stroke: 1.8 },
-  ucp:            { Icon: BarChart2,     stroke: 1.8 },
+  'vertex-ai':    { Icon: Search,      stroke: 1.8 },
+  'smart-sell':   { Icon: TrendingUp,  stroke: 1.8 },
+  'dynamic-yield':{ Icon: Sparkles,    stroke: 1.8 },
+  glamar:         { img: '/assets/brands/glamar.svg',   brand: true },
+  bazaarvoice:    { Icon: Star,        stroke: 1.8 },
+  commerce:       { Icon: Globe,       stroke: 1.8 },
+  'promo-tagging':{ Icon: Tag,         stroke: 1.8 },
+  oms:            { Icon: Package,     stroke: 1.8 },
+  logistics:      { Icon: Truck,       stroke: 1.8 },
+  konnect:        { Icon: LinkIcon,    stroke: 1.8 },
+  boltic:         { img: '/assets/brands/boltic.svg',   brand: true },
+  pixelbin:       { img: '/assets/brands/pixelbin.svg', brand: true },
+  'fynd-engage':  { Icon: Heart,       stroke: 1.8 },
+  kaily:          { img: '/assets/brands/kaily.svg',    brand: true },
+  ucp:            { Icon: BarChart2,   stroke: 1.8 },
 };
 
 // Build a flat list of all 15 IPs, tagged with their chapter accent colour.
@@ -235,33 +235,33 @@ function OrbitEmblem({ outer, inner }) {
         return <SatelliteChip key={ip.id} ip={ip} x={x} y={y} sizePx={44} floatIdx={i + 100} />;
       })}
 
-      {/* Sephora centre */}
+      {/* Sephora centre — flame + wordmark on a glass card */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
-        style={{ width: 240, height: 120 }}
+        style={{ width: 210, height: 180 }}
       >
         {/* backdrop glow */}
         <div
           className="absolute inset-0 rounded-2xl"
           style={{
             background:
-              'linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
-            border: '1px solid rgba(255,255,255,0.14)',
+              'linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02))',
+            border: '1px solid rgba(255,255,255,0.16)',
             boxShadow:
-              'inset 0 1px 0 rgba(255,255,255,0.18), 0 20px 50px rgba(0,0,0,0.5), 0 0 60px rgba(200,16,46,0.20)',
+              'inset 0 1px 0 rgba(255,255,255,0.2), 0 20px 50px rgba(0,0,0,0.55), 0 0 60px rgba(200,16,46,0.22)',
             backdropFilter: 'blur(8px)',
           }}
         />
-        {/* wordmark */}
+        {/* flame + SEPHORA wordmark */}
         <img
-          src="/assets/sephora-wordmark.svg"
+          src="/assets/sephora-brand.svg"
           alt="Sephora"
-          className="relative z-10 w-[75%] h-auto"
+          className="relative z-10 w-[70%] h-auto"
         />
-        {/* corner accent dots */}
+        {/* corner accent dots — chapter palette */}
         <span className="absolute top-2 left-2 w-1 h-1 rounded-full" style={{ background: '#C8102E', boxShadow: '0 0 6px #C8102E' }} />
         <span className="absolute top-2 right-2 w-1 h-1 rounded-full" style={{ background: '#8B5CF6', boxShadow: '0 0 6px #8B5CF6' }} />
         <span className="absolute bottom-2 left-2 w-1 h-1 rounded-full" style={{ background: '#3B82F6', boxShadow: '0 0 6px #3B82F6' }} />
@@ -283,54 +283,64 @@ function SatelliteChip({ ip, x, y, sizePx, floatIdx }) {
   const mapping = ipIconMap[ip.id];
   const floatClass =
     floatIdx % 3 === 0 ? 'iso-float' : floatIdx % 3 === 1 ? 'iso-float-alt' : 'iso-float-slow';
+  const [hovered, setHovered] = useState(false);
 
   return (
     <div
-      className="absolute flex items-center justify-center"
+      className="absolute flex items-center justify-center group"
       style={{
         left: x,
         top: y,
         width: sizePx,
         height: sizePx,
         transform: 'translate(-50%, -50%)',
+        zIndex: hovered ? 30 : 10,
       }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       {/* outer glow ring */}
       <span
-        className="absolute inset-0 rounded-xl"
+        className="absolute inset-0 rounded-xl pointer-events-none transition-opacity duration-300"
         style={{
-          background: `radial-gradient(circle, ${ip.color}33 0%, transparent 70%)`,
+          background: `radial-gradient(circle, ${ip.color}55 0%, transparent 70%)`,
+          opacity: hovered ? 1 : 0.55,
         }}
       />
 
       <div
-        className={`relative flex items-center justify-center rounded-xl ${floatClass}`}
+        className={`relative flex items-center justify-center rounded-xl cursor-pointer ${floatClass}`}
         style={{
           width: '100%',
           height: '100%',
           background:
             'linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02))',
-          border: `1px solid ${ip.color}50`,
+          border: `1px solid ${hovered ? ip.color : ip.color + '50'}`,
           boxShadow: `
             inset 0 1px 0 rgba(255,255,255,0.18),
             inset 1px 0 0 rgba(255,255,255,0.08),
             0 4px 10px rgba(0,0,0,0.45),
             0 8px 24px rgba(0,0,0,0.35),
-            0 0 18px ${ip.color}33
+            0 0 ${hovered ? '28px' : '18px'} ${ip.color}${hovered ? '66' : '33'}
           `,
           backdropFilter: 'blur(6px)',
+          transition: 'border-color .25s, box-shadow .25s, transform .25s',
+          transform: hovered ? 'scale(1.12)' : 'scale(1)',
         }}
       >
         {mapping?.img ? (
           <img
             src={mapping.img}
             alt={ip.name}
-            className="w-[55%] h-[55%] object-contain"
-            style={{ filter: 'invert(1) brightness(1.5)' }}
+            className="w-[62%] h-[62%] object-contain"
+            style={
+              mapping.brand
+                ? undefined                           // keep brand colours
+                : { filter: 'invert(1) brightness(1.5)' }
+            }
           />
         ) : mapping?.Icon ? (
           <mapping.Icon
-            className="text-white"
             style={{
               width: sizePx * 0.42,
               height: sizePx * 0.42,
@@ -340,6 +350,31 @@ function SatelliteChip({ ip, x, y, sizePx, floatIdx }) {
             strokeWidth={mapping.stroke}
           />
         ) : null}
+      </div>
+
+      {/* Hover tooltip — solution name */}
+      <div
+        className="absolute pointer-events-none whitespace-nowrap"
+        style={{
+          left: '50%',
+          top: `calc(100% + 8px)`,
+          transform: `translateX(-50%) translateY(${hovered ? '0' : '-4px'})`,
+          opacity: hovered ? 1 : 0,
+          transition: 'opacity .2s, transform .2s',
+          zIndex: 40,
+        }}
+      >
+        <div
+          className="px-2.5 py-1 rounded-md text-[11px] font-semibold tracking-wide text-white"
+          style={{
+            background: 'rgba(10,6,18,0.92)',
+            border: `1px solid ${ip.color}80`,
+            boxShadow: `0 6px 18px rgba(0,0,0,0.5), 0 0 14px ${ip.color}55`,
+            backdropFilter: 'blur(6px)',
+          }}
+        >
+          {ip.name}
+        </div>
       </div>
     </div>
   );
