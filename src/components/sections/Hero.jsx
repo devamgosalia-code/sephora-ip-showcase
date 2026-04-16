@@ -38,13 +38,14 @@ const ipIconMap = {
   ucp:            { Icon: BarChart2,   stroke: 1.8 },
 };
 
-// Build a flat list of all 15 IPs, tagged with their chapter accent colour.
+// Build a flat list of all 15 IPs, tagged with chapter accent + anchor target.
 const allIPs = journeyStages.flatMap((stage) => {
   const chapter = chapters.find((c) => c.id === stage.id);
   return stage.solutions.map((s) => ({
     id: s.id,
     name: s.name,
     color: chapter.accent,
+    chapterId: stage.id,        // 'discover' | 'experience' | 'purchase' | 'fulfil' | 'retain'
   }));
 });
 
@@ -153,8 +154,24 @@ export default function Hero() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-              className="relative flex items-center justify-center"
+              className="relative flex flex-col items-center justify-center"
             >
+              {/* "15 · SOLUTIONS" label pinned ABOVE the emblem so chips never cover it */}
+              <div
+                className="mb-3 inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] tracking-[0.4em] font-semibold"
+                style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  color: 'rgba(255,255,255,0.75)',
+                  fontFamily: 'monospace',
+                }}
+              >
+                <span
+                  className="w-1 h-1 rounded-full"
+                  style={{ background: '#8B5CF6', boxShadow: '0 0 6px #8B5CF6' }}
+                />
+                15 · SOLUTIONS
+              </div>
               <OrbitEmblem outer={outer} inner={inner} />
             </motion.div>
           </div>
@@ -235,39 +252,35 @@ function OrbitEmblem({ outer, inner }) {
         return <SatelliteChip key={ip.id} ip={ip} x={x} y={y} sizePx={44} floatIdx={i + 100} />;
       })}
 
-      {/* Sephora centre — raw logo, no container */}
+      {/* Sephora centre — flame + wordmark, no container */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
-        style={{ width: 220, height: 180 }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
+        style={{ width: 200, height: 170 }}
       >
         {/* soft ambient glow only — no box */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 rounded-full pointer-events-none"
+          className="absolute inset-0 rounded-full"
           style={{
             background:
               'radial-gradient(ellipse at center, rgba(255,255,255,0.10) 0%, rgba(200,16,46,0.10) 35%, transparent 70%)',
             filter: 'blur(6px)',
           }}
         />
+        {/* Pre-processed PNG: white mark on a fully transparent background,
+            extracted from the user's uploaded flame+wordmark asset. */}
         <img
           src="/assets/sephora-brand.png"
           alt="Sephora"
           className="relative z-10 w-full h-full object-contain"
-          style={{ filter: 'brightness(0) invert(1) drop-shadow(0 6px 30px rgba(0,0,0,0.5))' }}
+          draggable={false}
+          style={{ filter: 'drop-shadow(0 6px 30px rgba(0,0,0,0.5))' }}
         />
       </motion.div>
 
-      {/* label */}
-      <div
-        className="absolute left-1/2 -translate-x-1/2 text-[10px] tracking-[0.4em] font-semibold text-white/40"
-        style={{ bottom: 14, fontFamily: 'monospace' }}
-      >
-        15 · SOLUTIONS
-      </div>
     </div>
   );
 }
@@ -278,9 +291,24 @@ function SatelliteChip({ ip, x, y, sizePx, floatIdx }) {
     floatIdx % 3 === 0 ? 'iso-float' : floatIdx % 3 === 1 ? 'iso-float-alt' : 'iso-float-slow';
   const [hovered, setHovered] = useState(false);
 
+  const handleClick = (e) => {
+    e.preventDefault();
+    const el = document.getElementById(ip.chapterId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // Boltic's official PNG has a solid black background; screen-blending drops
+  // the black pixels to transparent on our dark canvas.
+  const brandImgStyle = ip.id === 'boltic'
+    ? { mixBlendMode: 'screen' }
+    : undefined;
+
   return (
-    <div
-      className="absolute flex items-center justify-center group"
+    <a
+      href={`#${ip.chapterId}`}
+      onClick={handleClick}
+      aria-label={`Jump to ${ip.name}`}
+      className="absolute flex items-center justify-center group cursor-pointer focus:outline-none"
       style={{
         left: x,
         top: y,
@@ -302,7 +330,7 @@ function SatelliteChip({ ip, x, y, sizePx, floatIdx }) {
       />
 
       <div
-        className={`relative flex items-center justify-center rounded-xl cursor-pointer ${floatClass}`}
+        className={`relative flex items-center justify-center rounded-xl ${floatClass}`}
         style={{
           width: '100%',
           height: '100%',
@@ -326,9 +354,10 @@ function SatelliteChip({ ip, x, y, sizePx, floatIdx }) {
             src={mapping.img}
             alt={ip.name}
             className="w-[62%] h-[62%] object-contain"
+            draggable={false}
             style={
               mapping.brand
-                ? undefined                           // keep brand colours
+                ? brandImgStyle                         // keep brand colours (+ boltic screen-blend)
                 : { filter: 'invert(1) brightness(1.5)' }
             }
           />
@@ -369,6 +398,6 @@ function SatelliteChip({ ip, x, y, sizePx, floatIdx }) {
           {ip.name}
         </div>
       </div>
-    </div>
+    </a>
   );
 }
