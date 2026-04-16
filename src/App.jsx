@@ -3,6 +3,7 @@ import Footer from './components/layout/Footer';
 import Hero from './components/sections/Hero';
 import Overview from './components/sections/Overview';
 import Journey from './components/sections/Journey';
+import WhyFynd from './components/sections/WhyFynd';
 import BeautyPass from './components/sections/BeautyPass';
 import PitchClose from './components/sections/PitchClose';
 
@@ -13,6 +14,7 @@ function App() {
       <Hero />
       <Overview />
       <Journey />
+      <WhyFynd />
       <BeautyPass />
       <PitchClose />
       <Footer />

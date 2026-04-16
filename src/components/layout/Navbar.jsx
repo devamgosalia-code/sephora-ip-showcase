@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 const navLinks = [
   { label: 'Overview', href: '#overview' },
   { label: 'Journey', href: '#journey' },
+  { label: 'Why Fynd', href: '#why-fynd' },
   { label: 'Beauty Pass', href: '#beautypass' },
 ];
 
