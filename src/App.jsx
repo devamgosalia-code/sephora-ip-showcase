@@ -1,21 +1,48 @@
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import Hero from './components/sections/Hero';
-import Overview from './components/sections/Overview';
-import Journey from './components/sections/Journey';
-import WhyFynd from './components/sections/WhyFynd';
-import BeautyPass from './components/sections/BeautyPass';
+import Chapter from './components/sections/Chapter';
+import ImpactWall from './components/sections/ImpactWall';
 import PitchClose from './components/sections/PitchClose';
+
+import { chapters, chapterById } from './data/chapters';
+import { journeyStages } from './data/journey';
+import {
+  DiscoverScene,
+  ExperienceScene,
+  PurchaseScene,
+  FulfilScene,
+  RetainScene,
+} from './components/scenes/Dioramas';
+
+const sceneById = {
+  discover: DiscoverScene,
+  experience: ExperienceScene,
+  purchase: PurchaseScene,
+  fulfil: FulfilScene,
+  retain: RetainScene,
+};
+
+// Map stages by id for quick lookup
+const stageById = Object.fromEntries(journeyStages.map((s) => [s.id, s]));
 
 function App() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ backgroundColor: '#0A0612' }}>
       <Navbar />
       <Hero />
-      <Overview />
-      <Journey />
-      <WhyFynd />
-      <BeautyPass />
+
+      {chapters.map((chapter, i) => (
+        <Chapter
+          key={chapter.id}
+          chapter={chapter}
+          stage={stageById[chapter.id]}
+          Scene={sceneById[chapter.id]}
+          reverse={i % 2 === 1}
+        />
+      ))}
+
+      <ImpactWall />
       <PitchClose />
       <Footer />
     </div>
