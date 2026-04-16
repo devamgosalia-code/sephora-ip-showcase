@@ -297,11 +297,8 @@ function SatelliteChip({ ip, x, y, sizePx, floatIdx }) {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  // Boltic's official PNG has a solid black background; screen-blending drops
-  // the black pixels to transparent on our dark canvas.
-  const brandImgStyle = ip.id === 'boltic'
-    ? { mixBlendMode: 'screen' }
-    : undefined;
+  // All brand PNGs now ship with transparent backgrounds — no blend hacks.
+  const brandImgStyle = undefined;
 
   return (
     <a
