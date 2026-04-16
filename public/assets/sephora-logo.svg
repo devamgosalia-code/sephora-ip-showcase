@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 70" fill="none">
+  <!-- Sephora flame/S-curve icon -->
+  <g transform="translate(82, 0)">
+    <path d="M18 2C18 2 22 8 22 14C22 20 18 24 16 28C14 32 13 36 14 40C15 44 18 46 18 46C18 46 14 42 14 38C14 34 16 30 18 26C20 22 22 18 22 14C22 8 18 2 18 2Z" fill="white"/>
+  </g>
+  <!-- SEPHORA text with wide letter spacing -->
+  <text x="100" y="64" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="400" font-size="18" fill="white" letter-spacing="8" text-anchor="middle">SEPHORA</text>
+</svg>
