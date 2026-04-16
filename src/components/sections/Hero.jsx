@@ -24,17 +24,17 @@ const ipIconMap = {
   'vertex-ai':    { Icon: Search,      stroke: 1.8 },
   'smart-sell':   { Icon: TrendingUp,  stroke: 1.8 },
   'dynamic-yield':{ Icon: Sparkles,    stroke: 1.8 },
-  glamar:         { img: '/assets/brands/glamar.svg',   brand: true },
+  glamar:         { img: '/assets/brands/glamar.png',   brand: true },
   bazaarvoice:    { Icon: Star,        stroke: 1.8 },
   commerce:       { Icon: Globe,       stroke: 1.8 },
   'promo-tagging':{ Icon: Tag,         stroke: 1.8 },
   oms:            { Icon: Package,     stroke: 1.8 },
   logistics:      { Icon: Truck,       stroke: 1.8 },
   konnect:        { Icon: LinkIcon,    stroke: 1.8 },
-  boltic:         { img: '/assets/brands/boltic.svg',   brand: true },
-  pixelbin:       { img: '/assets/brands/pixelbin.svg', brand: true },
+  boltic:         { img: '/assets/brands/boltic.png',   brand: true },
+  pixelbin:       { img: '/assets/brands/pixelbin.png', brand: true },
   'fynd-engage':  { Icon: Heart,       stroke: 1.8 },
-  kaily:          { img: '/assets/brands/kaily.svg',    brand: true },
+  kaily:          { img: '/assets/brands/kaily.png',    brand: true },
   ucp:            { Icon: BarChart2,   stroke: 1.8 },
 };
 
@@ -235,37 +235,30 @@ function OrbitEmblem({ outer, inner }) {
         return <SatelliteChip key={ip.id} ip={ip} x={x} y={y} sizePx={44} floatIdx={i + 100} />;
       })}
 
-      {/* Sephora centre — flame + wordmark on a glass card */}
+      {/* Sephora centre — raw logo, no container */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
-        style={{ width: 210, height: 180 }}
+        style={{ width: 220, height: 180 }}
       >
-        {/* backdrop glow */}
+        {/* soft ambient glow only — no box */}
         <div
-          className="absolute inset-0 rounded-2xl"
+          aria-hidden="true"
+          className="absolute inset-0 rounded-full pointer-events-none"
           style={{
             background:
-              'linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.02))',
-            border: '1px solid rgba(255,255,255,0.16)',
-            boxShadow:
-              'inset 0 1px 0 rgba(255,255,255,0.2), 0 20px 50px rgba(0,0,0,0.55), 0 0 60px rgba(200,16,46,0.22)',
-            backdropFilter: 'blur(8px)',
+              'radial-gradient(ellipse at center, rgba(255,255,255,0.10) 0%, rgba(200,16,46,0.10) 35%, transparent 70%)',
+            filter: 'blur(6px)',
           }}
         />
-        {/* flame + SEPHORA wordmark */}
         <img
-          src="/assets/sephora-brand.svg"
+          src="/assets/sephora-brand.png"
           alt="Sephora"
-          className="relative z-10 w-[70%] h-auto"
+          className="relative z-10 w-full h-full object-contain"
+          style={{ filter: 'brightness(0) invert(1) drop-shadow(0 6px 30px rgba(0,0,0,0.5))' }}
         />
-        {/* corner accent dots — chapter palette */}
-        <span className="absolute top-2 left-2 w-1 h-1 rounded-full" style={{ background: '#C8102E', boxShadow: '0 0 6px #C8102E' }} />
-        <span className="absolute top-2 right-2 w-1 h-1 rounded-full" style={{ background: '#8B5CF6', boxShadow: '0 0 6px #8B5CF6' }} />
-        <span className="absolute bottom-2 left-2 w-1 h-1 rounded-full" style={{ background: '#3B82F6', boxShadow: '0 0 6px #3B82F6' }} />
-        <span className="absolute bottom-2 right-2 w-1 h-1 rounded-full" style={{ background: '#F59E0B', boxShadow: '0 0 6px #F59E0B' }} />
       </motion.div>
 
       {/* label */}
