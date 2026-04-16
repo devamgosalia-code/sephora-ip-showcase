@@ -2,10 +2,7 @@ import { motion } from 'framer-motion';
 import { impactMetrics } from '../../data/metrics';
 
 const categories = [
-  { key: 'beautyPass', label: 'Beauty Pass Impact',    color: '#8B5CF6' },
-  { key: 'fulfilment', label: 'Fulfilment Performance',color: '#F59E0B' },
-  { key: 'beautyTech', label: 'Beauty Tech',           color: '#EC4899' },
-  { key: 'platform',   label: 'Platform Performance',  color: '#3B82F6' },
+  { key: 'beautyPass', label: 'Beauty Pass Impact', color: '#8B5CF6' },
 ];
 
 export default function ImpactWall() {

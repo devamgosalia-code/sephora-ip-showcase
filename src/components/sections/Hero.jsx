@@ -1,7 +1,42 @@
 import { motion } from 'framer-motion';
-import { ArrowDown } from 'lucide-react';
+import {
+  ArrowDown,
+  Search,
+  TrendingUp,
+  Sparkles,
+  Star,
+  Globe,
+  Tag,
+  Package,
+  Truck,
+  Link as LinkIcon,
+  Zap,
+  Image as ImageIcon,
+  Heart,
+  MessageCircle,
+  BarChart2,
+} from 'lucide-react';
 import { chapters } from '../../data/chapters';
 import { journeyStages } from '../../data/journey';
+
+// Icon map — one icon per IP. GlamAR uses an external hosted SVG.
+const ipIconMap = {
+  'vertex-ai':    { Icon: Search,        stroke: 1.8 },
+  'smart-sell':   { Icon: TrendingUp,    stroke: 1.8 },
+  'dynamic-yield':{ Icon: Sparkles,      stroke: 1.8 },
+  glamar:         { img: 'https://cdn.pixelbin.io/v2/dummy-cloudname/original/__glam_ar/logo/glamar-dark.svg' },
+  bazaarvoice:    { Icon: Star,          stroke: 1.8 },
+  commerce:       { Icon: Globe,         stroke: 1.8 },
+  'promo-tagging':{ Icon: Tag,           stroke: 1.8 },
+  oms:            { Icon: Package,       stroke: 1.8 },
+  logistics:      { Icon: Truck,         stroke: 1.8 },
+  konnect:        { Icon: LinkIcon,      stroke: 1.8 },
+  boltic:         { Icon: Zap,           stroke: 1.8 },
+  pixelbin:       { Icon: ImageIcon,     stroke: 1.8 },
+  'fynd-engage':  { Icon: Heart,         stroke: 1.8 },
+  kaily:          { Icon: MessageCircle, stroke: 1.8 },
+  ucp:            { Icon: BarChart2,     stroke: 1.8 },
+};
 
 // Build a flat list of all 15 IPs, tagged with their chapter accent colour.
 const allIPs = journeyStages.flatMap((stage) => {
@@ -13,11 +48,8 @@ const allIPs = journeyStages.flatMap((stage) => {
   }));
 });
 
-/**
- * Hero — "How Fynd Powers Sephora"
- * Central emblem with 15 satellites orbiting on two dashed rings.
- */
 export default function Hero() {
+  // 9 outer + 6 inner = 15 satellites
   const outer = allIPs.slice(0, 9);
   const inner = allIPs.slice(9);
 
@@ -98,7 +130,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="mt-10 flex items-center gap-5"
+              className="mt-10"
             >
               <a
                 href="#discover"
@@ -112,25 +144,6 @@ export default function Hero() {
                 Start the journey
                 <ArrowDown className="w-4 h-4" />
               </a>
-              <a
-                href="#fulfil"
-                className="text-[13.5px] text-white/60 hover:text-white/90 transition-colors tracking-wide"
-              >
-                Jump to Fulfilment →
-              </a>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-              className="mt-14 flex flex-wrap items-center gap-x-7 gap-y-3 text-[11px] tracking-[0.18em] uppercase font-semibold text-white/45"
-            >
-              <span className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-white/40" />15 Solutions</span>
-              <span className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-white/40" />4 Channels</span>
-              <span className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-white/40" />26K Pincodes</span>
-              <span className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-white/40" />15M+ Shipments</span>
-              <span className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-white/40" />Live</span>
             </motion.div>
           </div>
 
@@ -151,84 +164,183 @@ export default function Hero() {
   );
 }
 
+/* ─────────────────────────────────────────────────────
+   Orbit emblem — Sephora centre + 15 3D icon chips on 2 rings
+   HTML/SVG hybrid: dashed rings as SVG, chips as absolutely
+   positioned divs (so we can use lucide icons + the external
+   GlamAR logo cleanly).
+   ───────────────────────────────────────────────────── */
 function OrbitEmblem({ outer, inner }) {
-  const cx = 320, cy = 320, rOuter = 250, rInner = 160;
+  const size = 560;               // full emblem box (px)
+  const rOuter = 0.44 * size;     // ~246
+  const rInner = 0.28 * size;     // ~157
 
   return (
-    <svg viewBox="0 0 640 640" className="w-full max-w-[560px] h-auto">
-      <defs>
-        <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#C8102E" stopOpacity="0.9" />
-          <stop offset="50%" stopColor="#8B5CF6" stopOpacity="0.75" />
-          <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.7" />
-        </linearGradient>
-        <linearGradient id="coreGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.98" />
-          <stop offset="100%" stopColor="#C8102E" stopOpacity="0.9" />
-        </linearGradient>
-        <radialGradient id="coreHalo" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#C8102E" stopOpacity="0.35" />
-          <stop offset="70%" stopColor="#8B5CF6" stopOpacity="0.1" />
-          <stop offset="100%" stopColor="transparent" />
-        </radialGradient>
-      </defs>
+    <div
+      className="relative"
+      style={{ width: size, height: size, maxWidth: '100%' }}
+    >
+      {/* ambient halo */}
+      <div
+        className="absolute inset-0 rounded-full pointer-events-none"
+        style={{
+          background:
+            'radial-gradient(circle at 50% 50%, rgba(200,16,46,0.28) 0%, rgba(139,92,246,0.10) 45%, transparent 70%)',
+        }}
+      />
 
-      <circle cx={cx} cy={cy} r="200" fill="url(#coreHalo)" />
+      {/* SVG rings */}
+      <svg
+        viewBox={`0 0 ${size} ${size}`}
+        className="absolute inset-0 w-full h-full"
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id="heroRingGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%"   stopColor="#C8102E" stopOpacity="0.9" />
+            <stop offset="50%"  stopColor="#8B5CF6" stopOpacity="0.75" />
+            <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.7" />
+          </linearGradient>
+        </defs>
+        {/* outer ring — CCW */}
+        <g className="iso-rotate-slow-reverse" style={{ transformOrigin: `${size / 2}px ${size / 2}px` }}>
+          <circle
+            cx={size / 2} cy={size / 2} r={rOuter}
+            fill="none" stroke="url(#heroRingGrad)"
+            strokeWidth="1" strokeDasharray="2 8" opacity="0.5"
+          />
+        </g>
+        {/* inner ring — CW */}
+        <g className="iso-rotate-slow" style={{ transformOrigin: `${size / 2}px ${size / 2}px` }}>
+          <circle
+            cx={size / 2} cy={size / 2} r={rInner}
+            fill="none" stroke="url(#heroRingGrad)"
+            strokeWidth="0.85" strokeDasharray="1 5" opacity="0.65"
+          />
+        </g>
+      </svg>
 
-      <g className="iso-rotate-slow-reverse" style={{ transformOrigin: `${cx}px ${cy}px` }}>
-        <circle cx={cx} cy={cy} r={rOuter} fill="none" stroke="url(#ringGrad)" strokeWidth="1" strokeDasharray="2 8" opacity="0.55" />
-      </g>
-      <g className="iso-rotate-slow" style={{ transformOrigin: `${cx}px ${cy}px` }}>
-        <circle cx={cx} cy={cy} r={rInner} fill="none" stroke="url(#ringGrad)" strokeWidth="0.85" strokeDasharray="1 5" opacity="0.7" />
-      </g>
-
+      {/* Satellites */}
       {outer.map((ip, i) => {
         const angle = (i / outer.length) * Math.PI * 2 - Math.PI / 2;
-        const x = cx + Math.cos(angle) * rOuter;
-        const y = cy + Math.sin(angle) * rOuter;
-        return (
-          <g key={ip.id} className={i % 2 === 0 ? 'iso-float' : 'iso-float-alt'}>
-            <circle cx={x} cy={y} r="18" fill={ip.color} opacity="0.18" />
-            <circle cx={x} cy={y} r="10" fill={ip.color} stroke="rgba(255,255,255,0.5)" strokeWidth="0.8" />
-            <circle cx={x} cy={y} r="3.5" fill="#FFFFFF" />
-          </g>
-        );
+        const x = size / 2 + Math.cos(angle) * rOuter;
+        const y = size / 2 + Math.sin(angle) * rOuter;
+        return <SatelliteChip key={ip.id} ip={ip} x={x} y={y} sizePx={52} floatIdx={i} />;
       })}
 
       {inner.map((ip, i) => {
         const angle = (i / inner.length) * Math.PI * 2 + Math.PI / 6;
-        const x = cx + Math.cos(angle) * rInner;
-        const y = cy + Math.sin(angle) * rInner;
-        return (
-          <g key={ip.id} className={i % 2 === 0 ? 'iso-float-alt' : 'iso-float-slow'}>
-            <circle cx={x} cy={y} r="14" fill={ip.color} opacity="0.18" />
-            <circle cx={x} cy={y} r="7" fill={ip.color} stroke="rgba(255,255,255,0.5)" strokeWidth="0.7" />
-            <circle cx={x} cy={y} r="2.5" fill="#FFFFFF" />
-          </g>
-        );
+        const x = size / 2 + Math.cos(angle) * rInner;
+        const y = size / 2 + Math.sin(angle) * rInner;
+        return <SatelliteChip key={ip.id} ip={ip} x={x} y={y} sizePx={44} floatIdx={i + 100} />;
       })}
 
-      {/* core diamond */}
-      <g className="iso-float">
-        <path
-          d={`M${cx} ${cy - 52} L${cx + 46} ${cy} L${cx} ${cy + 52} L${cx - 46} ${cy} Z`}
-          fill="url(#coreGrad)"
-          stroke="rgba(255,255,255,0.5)"
-          strokeWidth="1"
+      {/* Sephora centre */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center"
+        style={{ width: 240, height: 120 }}
+      >
+        {/* backdrop glow */}
+        <div
+          className="absolute inset-0 rounded-2xl"
+          style={{
+            background:
+              'linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
+            border: '1px solid rgba(255,255,255,0.14)',
+            boxShadow:
+              'inset 0 1px 0 rgba(255,255,255,0.18), 0 20px 50px rgba(0,0,0,0.5), 0 0 60px rgba(200,16,46,0.20)',
+            backdropFilter: 'blur(8px)',
+          }}
         />
-        <path
-          d={`M${cx} ${cy - 28} L${cx + 25} ${cy} L${cx} ${cy + 28} L${cx - 25} ${cy} Z`}
-          fill="none"
-          stroke="rgba(255,255,255,0.75)"
-          strokeWidth="0.9"
+        {/* wordmark */}
+        <img
+          src="/assets/sephora-wordmark.svg"
+          alt="Sephora"
+          className="relative z-10 w-[75%] h-auto"
         />
-        <line x1={cx} y1={cy - 52} x2={cx} y2={cy + 52} stroke="rgba(255,255,255,0.4)" strokeWidth="0.6" />
-        <line x1={cx - 46} y1={cy} x2={cx + 46} y2={cy} stroke="rgba(255,255,255,0.4)" strokeWidth="0.6" />
-      </g>
+        {/* corner accent dots */}
+        <span className="absolute top-2 left-2 w-1 h-1 rounded-full" style={{ background: '#C8102E', boxShadow: '0 0 6px #C8102E' }} />
+        <span className="absolute top-2 right-2 w-1 h-1 rounded-full" style={{ background: '#8B5CF6', boxShadow: '0 0 6px #8B5CF6' }} />
+        <span className="absolute bottom-2 left-2 w-1 h-1 rounded-full" style={{ background: '#3B82F6', boxShadow: '0 0 6px #3B82F6' }} />
+        <span className="absolute bottom-2 right-2 w-1 h-1 rounded-full" style={{ background: '#F59E0B', boxShadow: '0 0 6px #F59E0B' }} />
+      </motion.div>
 
-      <text x={cx} y={cy + 100} textAnchor="middle" fontSize="9" fontFamily="monospace" letterSpacing="4" fill="rgba(255,255,255,0.35)">
-        15 SOLUTIONS
-      </text>
-    </svg>
+      {/* label */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 text-[10px] tracking-[0.4em] font-semibold text-white/40"
+        style={{ bottom: 14, fontFamily: 'monospace' }}
+      >
+        15 · SOLUTIONS
+      </div>
+    </div>
+  );
+}
+
+function SatelliteChip({ ip, x, y, sizePx, floatIdx }) {
+  const mapping = ipIconMap[ip.id];
+  const floatClass =
+    floatIdx % 3 === 0 ? 'iso-float' : floatIdx % 3 === 1 ? 'iso-float-alt' : 'iso-float-slow';
+
+  return (
+    <div
+      className="absolute flex items-center justify-center"
+      style={{
+        left: x,
+        top: y,
+        width: sizePx,
+        height: sizePx,
+        transform: 'translate(-50%, -50%)',
+      }}
+    >
+      {/* outer glow ring */}
+      <span
+        className="absolute inset-0 rounded-xl"
+        style={{
+          background: `radial-gradient(circle, ${ip.color}33 0%, transparent 70%)`,
+        }}
+      />
+
+      <div
+        className={`relative flex items-center justify-center rounded-xl ${floatClass}`}
+        style={{
+          width: '100%',
+          height: '100%',
+          background:
+            'linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02))',
+          border: `1px solid ${ip.color}50`,
+          boxShadow: `
+            inset 0 1px 0 rgba(255,255,255,0.18),
+            inset 1px 0 0 rgba(255,255,255,0.08),
+            0 4px 10px rgba(0,0,0,0.45),
+            0 8px 24px rgba(0,0,0,0.35),
+            0 0 18px ${ip.color}33
+          `,
+          backdropFilter: 'blur(6px)',
+        }}
+      >
+        {mapping?.img ? (
+          <img
+            src={mapping.img}
+            alt={ip.name}
+            className="w-[55%] h-[55%] object-contain"
+            style={{ filter: 'invert(1) brightness(1.5)' }}
+          />
+        ) : mapping?.Icon ? (
+          <mapping.Icon
+            className="text-white"
+            style={{
+              width: sizePx * 0.42,
+              height: sizePx * 0.42,
+              color: '#FFFFFF',
+              filter: `drop-shadow(0 0 6px ${ip.color})`,
+            }}
+            strokeWidth={mapping.stroke}
+          />
+        ) : null}
+      </div>
+    </div>
   );
 }
