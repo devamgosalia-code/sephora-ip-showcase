@@ -188,45 +188,56 @@ export default function Hero() {
    GlamAR logo cleanly).
    ───────────────────────────────────────────────────── */
 function OrbitEmblem({ outer, inner }) {
-  // Responsive size — observes the wrapper's width and clamps between
-  // a floor of 300px (mobile) and a ceiling of 560px (desktop). All
-  // other dimensions (rings, chips, centre logo) derive from this
-  // single value so the whole emblem scales proportionally.
-  const wrapRef = useRef(null);
-  const [size, setSize] = useState(() => {
-    if (typeof window === 'undefined') return 560;
-    const w = Math.min(window.innerWidth - 32, 560);
-    return Math.max(300, w);
-  });
+  // The emblem is authored at a fixed 560x560 design size with all
+  // chip/ring/centre positions baked in at that scale. We measure the
+  // parent container and apply a single CSS `transform: scale(s)` to
+  // shrink the whole emblem uniformly when space is tight.
+  // This makes responsiveness bulletproof — there's exactly one math
+  // path, and overflow is impossible because the outer box's layout
+  // footprint tracks the scaled size.
+  const BASE = 560;
+  const outerRef = useRef(null);
+  const [scale, setScale] = useState(1);
 
   useEffect(() => {
-    if (!wrapRef.current) return;
-    const ro = new ResizeObserver((entries) => {
-      const w = entries[0].contentRect.width;
-      // At the current width, pick the largest square that fits.
-      const next = Math.max(300, Math.min(560, Math.floor(w)));
-      setSize((prev) => (Math.abs(prev - next) > 2 ? next : prev));
-    });
-    ro.observe(wrapRef.current);
+    const parent = outerRef.current?.parentElement;
+    if (!parent) return;
+    const update = () => {
+      const w = parent.clientWidth;
+      // Mobile safety margin — keep 12px breathing room on each side
+      const target = Math.min(BASE, w - 24);
+      const s = Math.max(0.45, target / BASE);   // don't shrink below 45%
+      setScale((prev) => (Math.abs(prev - s) > 0.005 ? s : prev));
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(parent);
     return () => ro.disconnect();
   }, []);
 
+  // At design scale everything is computed from BASE = 560.
+  const size = BASE;
   const rOuter = 0.44 * size;
   const rInner = 0.28 * size;
-
-  // Chip sizes scale with the emblem, clamped for legibility on mobile.
-  const outerChipPx = Math.max(36, Math.min(52, Math.round(size * 0.093)));
-  const innerChipPx = Math.max(30, Math.min(44, Math.round(size * 0.079)));
-
-  // Centre logo sizing — keep the 200:170 aspect ratio.
-  const centreW = Math.max(120, Math.min(200, Math.round(size * 0.357)));
-  const centreH = Math.max(100, Math.min(170, Math.round(size * 0.304)));
+  const outerChipPx = 52;
+  const innerChipPx = 44;
+  const centreW = 200;
+  const centreH = 170;
 
   return (
     <div
-      ref={wrapRef}
+      ref={outerRef}
       className="relative"
-      style={{ width: size, height: size, maxWidth: '100%' }}
+      style={{ width: BASE * scale, height: BASE * scale }}
+    >
+    <div
+      className="absolute top-0 left-0"
+      style={{
+        width: BASE,
+        height: BASE,
+        transform: `scale(${scale})`,
+        transformOrigin: 'top left',
+      }}
     >
       {/* ambient halo */}
       <div
@@ -312,6 +323,7 @@ function OrbitEmblem({ outer, inner }) {
         />
       </motion.div>
 
+    </div>
     </div>
   );
 }
