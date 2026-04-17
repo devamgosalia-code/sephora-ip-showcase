@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowDown,
@@ -188,12 +188,43 @@ export default function Hero() {
    GlamAR logo cleanly).
    ───────────────────────────────────────────────────── */
 function OrbitEmblem({ outer, inner }) {
-  const size = 560;               // full emblem box (px)
-  const rOuter = 0.44 * size;     // ~246
-  const rInner = 0.28 * size;     // ~157
+  // Responsive size — observes the wrapper's width and clamps between
+  // a floor of 300px (mobile) and a ceiling of 560px (desktop). All
+  // other dimensions (rings, chips, centre logo) derive from this
+  // single value so the whole emblem scales proportionally.
+  const wrapRef = useRef(null);
+  const [size, setSize] = useState(() => {
+    if (typeof window === 'undefined') return 560;
+    const w = Math.min(window.innerWidth - 32, 560);
+    return Math.max(300, w);
+  });
+
+  useEffect(() => {
+    if (!wrapRef.current) return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0].contentRect.width;
+      // At the current width, pick the largest square that fits.
+      const next = Math.max(300, Math.min(560, Math.floor(w)));
+      setSize((prev) => (Math.abs(prev - next) > 2 ? next : prev));
+    });
+    ro.observe(wrapRef.current);
+    return () => ro.disconnect();
+  }, []);
+
+  const rOuter = 0.44 * size;
+  const rInner = 0.28 * size;
+
+  // Chip sizes scale with the emblem, clamped for legibility on mobile.
+  const outerChipPx = Math.max(36, Math.min(52, Math.round(size * 0.093)));
+  const innerChipPx = Math.max(30, Math.min(44, Math.round(size * 0.079)));
+
+  // Centre logo sizing — keep the 200:170 aspect ratio.
+  const centreW = Math.max(120, Math.min(200, Math.round(size * 0.357)));
+  const centreH = Math.max(100, Math.min(170, Math.round(size * 0.304)));
 
   return (
     <div
+      ref={wrapRef}
       className="relative"
       style={{ width: size, height: size, maxWidth: '100%' }}
     >
@@ -242,14 +273,14 @@ function OrbitEmblem({ outer, inner }) {
         const angle = (i / outer.length) * Math.PI * 2 - Math.PI / 2;
         const x = size / 2 + Math.cos(angle) * rOuter;
         const y = size / 2 + Math.sin(angle) * rOuter;
-        return <SatelliteChip key={ip.id} ip={ip} x={x} y={y} sizePx={52} floatIdx={i} />;
+        return <SatelliteChip key={ip.id} ip={ip} x={x} y={y} sizePx={outerChipPx} floatIdx={i} />;
       })}
 
       {inner.map((ip, i) => {
         const angle = (i / inner.length) * Math.PI * 2 + Math.PI / 6;
         const x = size / 2 + Math.cos(angle) * rInner;
         const y = size / 2 + Math.sin(angle) * rInner;
-        return <SatelliteChip key={ip.id} ip={ip} x={x} y={y} sizePx={44} floatIdx={i + 100} />;
+        return <SatelliteChip key={ip.id} ip={ip} x={x} y={y} sizePx={innerChipPx} floatIdx={i + 100} />;
       })}
 
       {/* Sephora centre — flame + wordmark, no container */}
@@ -258,7 +289,7 @@ function OrbitEmblem({ outer, inner }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none"
-        style={{ width: 200, height: 170 }}
+        style={{ width: centreW, height: centreH }}
       >
         {/* soft ambient glow only — no box */}
         <div
